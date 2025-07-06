@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Books That Changed My Mindset - 자막 플레이어</title>
+  <style>
+    body { margin:0; font-family:sans-serif; background:#f5f8fa; color:#232340; }
+    .container { max-width:440px; margin:0 auto; }
+    #player {
+      width:100%;
+      aspect-ratio:16/9;
+      border:none;
+      border-radius:18px;
+      margin-top:12px;
+      box-shadow:0 2px 10px #cdd4e7;
+      position: sticky; top: 0; z-index: 2;
+      background: #000;
+    }
+    #progress { margin:18px 18px 8px 18px; font-size:17px; font-weight:500; text-align:right; }
+    #controls { display:flex; gap:10px; margin:0 18px 14px 18px; }
+    #controls button { font-size:15px; padding:7px 14px; border-radius:10px; border:none; background:#dbeafe; color:#232340; cursor:pointer; }
+    #controls button.active { background:#232340; color:#fff; }
+    #subs { display:flex; flex-direction:column; gap:12px; padding:0 18px 24px 18px; }
+    .sub-row { display:flex; align-items:center; gap:10px; }
+    .sub-btn {
+      flex:1;
+      font-size:18px;
+      padding:16px;
+      border-radius:14px;
+      border:none;
+      background:#e0e7ff;
+      color:#232340;
+      text-align:left;
+      transition:.13s;
+      white-space:normal;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    .sub-btn:active { background:#a5b4fc; }
+    .sub-btn.learned { background:#a7f3d0; color:#157348; text-decoration:line-through; }
+    .hide-btn { background:transparent; border:none; font-size:19px; cursor:pointer; color:#bbb; }
+    .hide-btn.active { color:#3b3b3b; }
+    .check-btn { background:transparent; border:none; font-size:20px; cursor:pointer; margin-left:3px; color:#b4e197;}
+    .check-btn.checked { color:#22c55e; }
+    @media (max-width: 520px) {
+      #player { border-radius:9px;}
+      .sub-btn { font-size:17px; padding:12px;}
+      #progress { font-size:16px;}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <iframe id="player" src="https://www.youtube.com/embed/xtIc5nARDBc?enablejsapi=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div id="progress"></div>
+  <div id="controls">
+    <button id="show-all" class="active">전체 보기</button>
+    <button id="show-learned">외웠음 보기</button>
+  </div>
+  <div id="subs"></div>
+</div>
+<script>
+const SUBS = [
+  { text: "hey everyone welcome back to the channel", start: 7.8, end: 9.66 },
+  { text: "today i will be going over  every single book that transformed", start: 9.84, end: 13.81 },
+  { text: "my mindset for the better", start: 13.92, end: 15.45 },
+  { text: "so let's get cracking", start: 15.69, end: 17.01 },
+  { text: "so the first category  I want to tackle is productivity", start: 17.03, end: 20.49 },
+  { text: "here I have the seven habits of  highly effective people by stephen covey", start: 20.61, end: 24.99 },
+  { text: "this is a book that I have been  shoving down people's throats", start: 25.44, end: 29.37 },
+  { text: "since 2017.", start: 29.64, end: 31.2 },
+  { text: "this has changed my life  in such a positive way", start: 31.32, end: 34.37 },
+  { text: "my boss bible is  seven habits of highly effective people", start: 34.42, end: 38.97 },
+  { text: "I believe this book goes beyond  efficiency and productivity", start: 39.01, end: 43.33 },
+  { text: "it genuinely inspired me  to be a better and more expanded", start: 43.44, end: 48.45 },
+  { text: "version of myself", start: 48.63, end: 49.63 },
+  { text: "so I love this quote that  he highlighted by aristotle", start: 49.64, end: 52.66 },
+  { text: "we are what we repeatedly do", start: 52.67, end: 54.76 },
+  { text: "excellence then is not an act  but a habit yes", start: 54.96, end: 58.84 },
+  { text: "I think for so long I thought that  excellence was only reserved for the elite", start: 58.92, end: 63.09 },
+  { text: "or insanely gifted", start: 63.21, end: 64.92 },
+  { text: "but this reminds me that  excellence is available to anyone", start: 65.09, end: 68.39 },
+  { text: "that is willing to put in the work  every single day", start: 68.41, end: 71.67 },
+  { text: "you become what you repeat", start: 71.83, end: 73.94 },
+  { text: "and off the jump the seven habits  are here on the screen", start: 74.1, end: 77.73 },
+  { text: "I'm not gonna expand on them", start: 77.86, end: 79.3 },
+  { text: "because that could be  a whole separate video", start: 79.31, end: 82.26 },
+  { text: "and also it just hits different  when you're reading it and", start: 82.47, end: 85.6 },
+  { text: "and you're applying your own examples", start: 85.61, end: 87.66 },
+  { text: "It is such a transformative book  and I could not recommend it enough", start: 87.78, end: 91.91 },
+  { text: "so please go check it out", start: 91.92, end: 93.21 },
+  { text: "moving on to book number two  we have atomic habits by james clear", start: 93.39, end: 97.23 },
+  { text: "I think that this book is  a really great follow-up to seven habits", start: 97.44, end: 100.77 },
+  { text: "I feel like they stack really well  on top of each other", start: 100.92, end: 103.27 },
+  { text: "james clear describes a habit  as a routine or behavior", start: 103.28, end: 107.77 },
+  { text: "that happens so regularly that  it occurs automatically", start: 107.91, end: 111.47 },
+  { text: "like the quality of your life depends on  the quality of your habits", start: 111.75, end: 115.91 },
+  { text: "so let's say", start: 115.92, end: 116.58 },
+  { text: "you start by doing something extremely  small for yourself every single day", start: 116.59, end: 120.86 },
+  { text: "maybe it's like going  on a walk 15, 20 minutes a day", start: 120.87, end: 124.71 },
+  { text: "during that day  it doesn't seem like a big deal", start: 124.83, end: 127.21 },
+  { text: "like it's probably  improving your life maybe one percent", start: 127.22, end: 130.53 },
+  { text: "but what happens when you keep doing that", start: 130.68, end: 133.08 },
+  { text: "every single day for a month  a year two years", start: 133.29, end: 136.75 },
+  { text: "this my friends is the compound effect", start: 137.13, end: 139.74 },
+  { text: "time magnifies your results", start: 139.75, end: 142.1 },
+  { text: "and if you do something  so small every single day", start: 142.11, end: 145.62 },
+  { text: "even though it's just a drop in the bucket", start: 145.63, end: 147.36 },
+  { text: "If you zoom out you'll see oh [ __ ]  we just filled up a gallon baby", start: 147.45, end: 151.68 },
+  { text: "and I feel like with  self-improvement and productivity", start: 152.07, end: 155.31 },
+  { text: "these are things that  require delayed gratification", start: 156.09, end: 159.12 },
+  { text: "they don't happen overnight", start: 159.13, end: 160.35 },
+  { text: "success doesn't happen overnight", start: 160.36, end: 162.51 },
+  { text: "It requires patience and time and  putting in the work every single day", start: 162.72, end: 166.67 },
+  { text: "so he breaks down  how to create a good habit in four ways", start: 166.83, end: 169.84 },
+  { text: "which is make it obvious make it easy  make it attractive and make it satisfying", start: 169.85, end: 175.24 },
+  { text: "again this will make a lot more sense  once you read it so", start: 175.25, end: 178.78 },
+  { text: "just read it", start: 179.16, end: 180.73 },
+];
+
+
+const STORAGE_KEY = 'subStatus_books_mindset_yt';
+let status = {};
+
+function loadStatus() {
+  try {
+    status = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    for (let i=0; i<SUBS.length; i++) {
+      if (!status[i]) status[i]={hide:false,learned:false};
+    }
+  } catch { status = {}; }
+}
+function saveStatus() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(status));
+}
+
+function renderSubs(view='all') {
+  const subsDiv = document.getElementById('subs');
+  subsDiv.innerHTML = '';
+  let learned = 0;
+  SUBS.forEach((sub, idx) => {
+    if (view==='learned' && !status[idx].learned) return;
+    if (status[idx].learned) learned++;
+    const row = document.createElement('div');
+    row.className = 'sub-row';
+
+    const btn = document.createElement('button');
+    btn.className = 'sub-btn' + (status[idx].learned ? ' learned':'');
+    btn.innerText = status[idx].hide ? '🙈' : sub.text;
+    btn.onclick = () => playSub(idx);
+
+    const hideBtn = document.createElement('button');
+    hideBtn.className = 'hide-btn' + (status[idx].hide ? ' active' : '');
+    hideBtn.innerText = '🙈';
+    hideBtn.title = status[idx].hide ? '자막 보이기' : '자막 숨기기';
+    hideBtn.onclick = (e) => {
+      status[idx].hide = !status[idx].hide;
+      saveStatus(); renderSubs(currentView);
+      e.stopPropagation();
+    };
+
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'check-btn' + (status[idx].learned ? ' checked':'');
+    checkBtn.innerText = '✔️';
+    checkBtn.title = status[idx].learned ? '외웠음 해제' : '외웠음';
+    checkBtn.onclick = (e) => {
+      status[idx].learned = !status[idx].learned;
+      saveStatus(); renderSubs(currentView);
+      e.stopPropagation();
+    };
+
+    row.appendChild(btn);
+    row.appendChild(hideBtn);
+    row.appendChild(checkBtn);
+    subsDiv.appendChild(row);
+  });
+  // 진행률
+  let percent = SUBS.length ? Math.round(learned/SUBS.length*100) : 0;
+  document.getElementById('progress').innerHTML = 
+    `진행률: <b>${percent}%</b> (${learned}/${SUBS.length})`;
+}
+
+let player, timeoutId, currentView = 'all';
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player');
+}
+function playSub(idx) {
+  if (!player || !player.seekTo) return;
+  const {start, end} = SUBS[idx];
+  player.seekTo(start, true);
+  player.playVideo();
+  if(timeoutId) clearTimeout(timeoutId);
+  timeoutId = setTimeout(()=>{player.pauseVideo();}, (end-start)*1000);
+}
+
+document.getElementById('show-all').onclick = function() {
+  currentView='all';
+  this.classList.add('active');
+  document.getElementById('show-learned').classList.remove('active');
+  renderSubs('all');
+};
+document.getElementById('show-learned').onclick = function() {
+  currentView='learned';
+  this.classList.add('active');
+  document.getElementById('show-all').classList.remove('active');
+  renderSubs('learned');
+};
+
+const tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.body.appendChild(tag);
+
+loadStatus();
+renderSubs(currentView);
+</script>
+</body>
+</html>
